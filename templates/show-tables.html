@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQLite Database Visualization</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <a href="/" class="btn btn-primary">Go Back</a>
+  <div class="container mt-5">
+    {% if tables %}
+    <h1 class="mb-4">SQLite Database Visualization</h1>
+    <div class="container mt-5">
+      <h2>Add New Table</h2>
+      <form id="add-table-form">
+        <div class="form-group">
+          <label for="table-name">Table Name:</label>
+          <input type="text" class="form-control" id="table-name" name="table_name" required>
+        </div>
+        <div class="form-group">
+          <label for="columns">Columns (comma',' separated):</label>
+          <input type="text" class="form-control" id="columns" name="columns" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Send</button>
+      </form>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6">
+        <h2>Table Names</h2>        
+        <ul class="list-group">
+          {% for table in tables %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+            <a href="{{ url_for('show_table_content', db_name=db_name, table_name=table) }}" class="list-group-item-action">{{ table }}</a>
+            <button class="btn btn-outline-danger delete-btn" data-table="{{table}}">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash" viewBox="0 0 16 16">
+                <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z"></path>
+                <path d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z"></path>
+              </svg>
+              Delete
+          </button>
+          </li>
+          {% endfor %}
+        </ul>
+        <div class="btn-group" role="group" aria-label="Pagination">
+          <a href="/{{db_name}}/table?page={{curr_page-1}}" class="btn btn-secondary" id="prev-btn">Previous</a>
+          <a href="/{{db_name}}/table?page={{curr_page+1}}" class="btn btn-secondary" id="next-btn">Next</a>
+          <h4>{{curr_page}}/{{total_pages}}</h4>
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <div class="container mt-5">
+      <h2>Add New Table</h2>
+      <form id="add-table-form">
+        <div class="form-group">
+          <label for="table-name">Table Name:</label>
+          <input type="text" class="form-control" id="table-name" name="table_name" required>
+        </div>
+        <div class="form-group">
+          <label for="columns">Columns (comma',' separated):</label>
+          <input type="text" class="form-control" id="columns" name="columns" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Send</button>
+      </form>
+    </div>
+    {% endif %}
+    
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    const db_name = "{{db_name}}";
+  document.addEventListener("DOMContentLoaded", function() {
+  const deleteButtons = document.querySelectorAll(".delete-btn");
+
+  deleteButtons.forEach(button => {
+    button.addEventListener("click", function() {
+      const tableName = this.getAttribute("data-table");
+      if (confirm(`Are you sure you want to delete the table "${tableName}"?`)) {
+        fetch(`/${db_name}/table`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded"
+          },
+          body: `table_name=${encodeURIComponent(tableName)}`
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error("Failed to delete table.");
+          }
+          location.reload(); 
+        })
+        .catch(error => {
+          console.error("Error:", error);
+          alert(error);
+        });
+      }
+    });
+  });
+});
+  </script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const form = document.getElementById("add-table-form");
+  
+      form.addEventListener("submit", function(event) {
+        event.preventDefault();
+  
+        const formData = new FormData(form);
+  
+        fetch(`/${db_name}/table`, {
+          method: "POST",
+          body: formData
+        });
+          //location.reload(); 
+      });
+    });
+  </script>
+</body>

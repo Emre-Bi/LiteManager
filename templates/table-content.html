@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Table Content</title>
+  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+  <a href="/{{db_name}}/table" class="btn btn-primary">Go Back</a>
+  <div class="container mt-5">
+    {% if table_content %}
+    <form id="add-row-form" method="POST" action="/{{ db_name }}/table/{{ table_name }}">
+      {% for column in columns %}
+      <div class="form-group">
+        <label for="{{ column }}">{{ column }}</label>
+        <input type="text" class="form-control" id="{{ column }}" name="{{ column }}" required>
+      </div>
+      {% endfor %}
+      <button type="submit" class="btn btn-primary">Add Row</button>
+    </form>
+    <h1 class="mb-4">Table Content</h1>
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            {% for column in columns %}
+            <th>{{ column }}</th>
+            {% endfor %}
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in table_content %}
+          <tr>
+            {% for value in row.values() %}
+            <td>{{ value }}</td>
+            {% endfor %}
+            <td>
+              <form class="delete-form" action="/delete/{{db_name}}/{{table_name}}/row" method="POST">
+                {% for key, value in row.items() %}
+                <input type="hidden" name="{{ key }}" value="{{ value }}">
+                {% endfor %}
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      <div class="btn-group" role="group" aria-label="Pagination">
+        <a href="/{{db_name}}/table/{{table_name}}?page={{curr_page-1}}" class="btn btn-secondary" id="prev-btn">Previous</a>
+        <a href="/{{db_name}}/table/{{table_name}}?page={{curr_page+1}}" class="btn btn-secondary" id="next-btn">Next</a>
+        <h4>{{curr_page}}/{{total_pages}}</h4>
+      </div>
+      {% else %}
+      <form id="add-row-form" method="POST" action="/{{ db_name }}/table/{{ table_name }}">
+        {% for column in columns %}
+        <div class="form-group">
+          <label for="{{ column }}">{{ column }}</label>
+          <input type="text" class="form-control" id="{{ column }}" name="{{ column }}" required>
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Add Row</button>
+      </form>
+      <p>No data available.</p>
+      {% endif %}
+    </div>
+    
+  </div>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
