@@ -140,22 +140,22 @@ def add_row(db_name, table_name, row_data):
     Returns:
         int: Returns 1 if the row was successfully added, otherwise returns 0.
   """
-    connection = get_db_connection(db_name=db_name)
-    columns = get_columns(db_name=db_name, table_name=table_name)
-    cursor = connection.cursor()
-    if not all(column in row_data.keys() for column in columns):
-        return 0
-    columns = ', '.join(row_data.keys())
-    placeholders = ', '.join(['?' for _ in range(len(row_data))])
-    sql_query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
-    try:
-        cursor.execute(sql_query, list(row_data.values()))
-        connection.commit()
-        return 1
-    except Exception as e:
-        print(f"Error: {e}")
-        connection.rollback()
-        return 0
+  connection = get_db_connection(db_name=db_name)
+  columns = get_columns(db_name=db_name, table_name=table_name)
+  cursor = connection.cursor()
+  if not all(column in row_data.keys() for column in columns):
+      return 0
+  columns = ', '.join(row_data.keys())
+  placeholders = ', '.join(['?' for _ in range(len(row_data))])
+  sql_query = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
+  try:
+      cursor.execute(sql_query, list(row_data.values()))
+      connection.commit()
+      return 1
+  except Exception as e:
+      print(f"Error: {e}")
+      connection.rollback()
+      return 0
 
 def add_table(db_name, table_name, columns):
   """
